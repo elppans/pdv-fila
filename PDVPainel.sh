@@ -71,7 +71,8 @@ temp_profile="$HOME/.painel/chromium"
 mkdir -p "$temp_profile"
 echo "Iniciando Painel..."
 sleeping 10
-setsid nohup chromium-browser --no-sandbox --test-type \
+setsid nohup chromium-browser --no-sandbox \
+--test-type \
 --no-default-browser-check \
 --disable-session-crashed-bubble \
 --restore-last-session=false \
@@ -80,10 +81,12 @@ setsid nohup chromium-browser --no-sandbox --test-type \
 --disable-component-extensions-with-background-pages \
 --disable-features=SessionRestore \
 --disable-restore-session-state \
+--disable-features=DesktopPWAsAdditionalWindowingControls \
+--disable-features=TabRestore \
 --user-data-dir="$temp_profile" \
 --autoplay-policy=no-user-gesture-required \
 --enable-speech-synthesis \
---kiosk \
+ --kiosk \
 http://127.0.0.1:9090/moduloPHPPDV/painel.php --window-position="$posicaox2" &>>/dev/null &
 }
 
