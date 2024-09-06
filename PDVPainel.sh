@@ -1,12 +1,5 @@
 #!/bin/bash
 
-# Script para execução do PDV com Painel Chama Fila. Base PDVJava
-# Faça Download do arquivo chama_fila.zip do FTP Z..., extraia e configure conforme manual "GCCF0106";
-# Substitua o Script principal do pacote zip por este, no diretório pdvJava;
-# Deve editar o arquivo "/usr/local/bin/mainapp" e trocar a execução em xterm configurado pelo comando a seguir:
-#
-# xterm -e /Zanthus/Zeus/pdvJava/PDVPainel.sh
-
 # Variáveis para configuração de monitores
 monitor1='eDP-1'
 monitor2='VGA-1'
@@ -49,6 +42,7 @@ pdvjava_param() {
     if [ -z "$WMID" ]; then
       echo "Aguardando 'Zanthus Retail' iniciar..."
       sleeping 5
+      clear
     else
       # Garantir que o Java seja configurado na posição parametrizada.
       wmctrl -i -r $WMID -e "0,$posicaox1,-1,-1"
@@ -71,9 +65,26 @@ pdvjava_param
 }
 
 painel_exec() {
+local temp_profile
+temp_profile="$HOME/.painel/chromium"
+#temp_profile=$(mktemp -d) # mesmo que --incognito
+mkdir -p "$temp_profile"
 echo "Iniciando Painel..."
 sleeping 10
-nohup chromium-browser --no-sandbox --autoplay-policy=no-user-gesture-required --enable-speech-synthesis --kiosk http://127.0.0.1:9090/moduloPHPPDV/painel.php --window-position="$posicaox2" &>>/dev/null &
+setsid nohup chromium-browser --no-sandbox --test-type \
+--no-default-browser-check \
+--disable-session-crashed-bubble \
+--restore-last-session=false \
+--disable-infobars \
+--disable-background-networking \
+--disable-component-extensions-with-background-pages \
+--disable-features=SessionRestore \
+--disable-restore-session-state \
+--user-data-dir="$temp_profile" \
+--autoplay-policy=no-user-gesture-required \
+--enable-speech-synthesis \
+--kiosk \
+http://127.0.0.1:9090/moduloPHPPDV/painel.php --window-position="$posicaox2" &>>/dev/null &
 }
 
 pdvjava_exec
