@@ -22,7 +22,7 @@ export posicao2
 export posicaox1
 export posicaox2
 
-# Execução do comando, usando as variáveis configuradas
+# Configura a resolução e posição dos monitores
 xrandr --output "$monitor1" --mode "$resolucao1" --pos "$posicao1" --output "$monitor2" --mode "$resolucao2"  --pos "$posicao2"
 
 # Função para definir um Loop/Tempo
@@ -35,7 +35,7 @@ for i in $(seq "$time" -1 1); do
 done
 }
 
-# Função para verificar e configurar a janela Java
+# Função para verificar e posicionar a janela Java
 pdvjava_param() {
   while true; do
     WMID=$(wmctrl -l | grep "Zanthus Retail" | cut -d " " -f1)
@@ -65,8 +65,9 @@ nohup xterm -e "/Zanthus/Zeus/pdvJava/pdvJava2" &>>/dev/null &
 pdvjava_param
 }
 
+# Função para executar o Painel Chama Fila
 painel_exec() {
-# Configuração de profile para Chromium
+# Configuração de Profile e Storage
 local temp_profile
 local local_storage
 
@@ -74,6 +75,7 @@ temp_profile="$HOME/.painel/chromium"
 local_storage="$temp_profile/Default/Local Storage"
 
 mkdir -p "$local_storage"
+
 echo "Iniciando Painel..."
 sleeping 10
 
@@ -96,11 +98,14 @@ setsid nohup chromium-browser --no-sandbox \
 --user-data-dir="$temp_profile" \
 --autoplay-policy=no-user-gesture-required \
 --enable-speech-synthesis \
- --kiosk \
+--kiosk \
 http://127.0.0.1:9090/moduloPHPPDV/painel.php --window-position="$posicaox2" &>>/dev/null &
 }
 
+# Execução das funções
 pdvjava_exec
 painel_exec
+
+# Finalização
 echo "Esta janela será fechada após..."
 sleeping 55
