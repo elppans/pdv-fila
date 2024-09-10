@@ -35,7 +35,7 @@ for i in $(seq "$time" -1 1); do
 done
 }
 
-# Função para verificar e configurar a janela
+# Função para verificar e configurar a janela Java
 pdvjava_param() {
   while true; do
     WMID=$(wmctrl -l | grep "Zanthus Retail" | cut -d " " -f1)
@@ -52,6 +52,7 @@ pdvjava_param() {
   done
 }
 
+# Função para executar o Java (base PDVJava)
 pdvjava_exec() {
 /usr/bin/unclutter 1> /dev/null &
 chmod +x /usr/local/bin/igraficaJava
@@ -65,12 +66,21 @@ pdvjava_param
 }
 
 painel_exec() {
+# Configuração de profile para Chromium
 local temp_profile
+local local_storage
+
 temp_profile="$HOME/.painel/chromium"
-#temp_profile=$(mktemp -d) # mesmo que --incognito
-mkdir -p "$temp_profile"
+local_storage="$temp_profile/Default/Local Storage"
+
+mkdir -p "$local_storage"
 echo "Iniciando Painel..."
 sleeping 10
+
+# Limpar informações de profile, mas manter configuração do Painel
+find "$temp_profile" -mindepth 1 -not -path "$local_storage/*" -delete &>>/dev/null
+
+# Executar Chromium com uma nova instância
 setsid nohup chromium-browser --no-sandbox \
 --test-type \
 --no-default-browser-check \
