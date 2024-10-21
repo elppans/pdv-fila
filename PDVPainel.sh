@@ -52,6 +52,23 @@ pdvjava_param() {
   done
 }
 
+# Função para verificar e posicionar a janela Interface PDV
+interface_param() {
+  while true; do
+    WMID=$(wmctrl -l | grep "Interface PDV" | cut -d " " -f1)
+    if [ -z "$WMID" ]; then
+      echo "Aguardando 'Interface PDV' iniciar..."
+      sleeping 5
+      clear
+    else
+      # Garantir que o Java seja configurado na posição parametrizada.
+      wmctrl -i -r $WMID -e "0,$posicaox1,-1,-1"
+      echo "Janela 'Interface PDV' encontrada e configurada."
+      break
+    fi
+  done
+}
+
 # Função para executar o Java (base PDVJava)
 pdvjava_exec() {
 /usr/bin/unclutter 1> /dev/null &
@@ -63,6 +80,50 @@ nohup recreate-user-rabbitmq.sh &>>/dev/null &
 echo "Iniciando pdvJava2..."
 nohup xterm -e "/Zanthus/Zeus/pdvJava/pdvJava2" &>>/dev/null &
 pdvjava_param
+}
+
+# Função para executar o Interface
+interface_exec() {
+# Configuração de Profile e Storage
+local temp_profile
+local local_storage
+local interface
+
+temp_profile="$HOME/.interface/chromium"
+local_storage="$temp_profile/Default/Local Storage"
+interface="/Zanthus/Zeus/Interface"
+
+mkdir -p "$local_storage"
+chown -R zanthus:zanthus "$interface"
+echo "Iniciando interface..."
+sleeping 10
+
+# Limpar informações de profile, mas manter configuração do interface
+find "$temp_profile" -mindepth 1 -not -path "$local_storage/*" -delete &>>/dev/null
+
+# Executar Chromium com uma nova instância
+setsid nohup chromium-browser --no-sandbox \
+--test-type \
+--no-default-browser-check \
+--no-context-menu \
+--disable-gpu \
+--disable-session-crashed-bubble \
+--disable-infobars \
+--disable-background-networking \
+--disable-component-extensions-with-background-pages \
+--disable-features=SessionRestore \
+--disable-restore-session-state \
+--disable-features=DesktopPWAsAdditionalWindowingControls \
+--disable-features=TabRestore \
+--disable-translate \
+--disk-cache-dir=/tmp/chromium-cache \
+--user-data-dir="$temp_profile" \
+--restore-last-session=false \
+--autoplay-policy=no-user-gesture-required \
+--enable-speech-synthesis \
+--kiosk \
+file:///"$interface"/index.html &>>/dev/null &
+interface_param
 }
 
 # Função para executar o Painel Chama Fila
@@ -103,8 +164,9 @@ http://127.0.0.1:9090/moduloPHPPDV/painel.php --window-position="$posicaox2" &>>
 }
 
 # Execução das funções
-pdvjava_exec
-painel_exec
+# pdvjava_exec    # Executar o Java (base PDVJava)
+interface_exec  # Executar o Interface (PDVToutch)
+painel_exec     # Executar o Painel Chama Fila
 
 # Finalização
 echo "Esta janela será fechada após..."
