@@ -6,16 +6,16 @@ monitor2='HDMI-1'
 resolucao1='1024x768'
 resolucao2='1440x900'
 posicao1='0x0'   # Posicao Horizontal x Vertical, 1º monitor
-# posicao2='1024x0' # Posição após o valor "Horizontal" do 1º monitor. 2º monitor
+posicao2='1024x0' # Posição após o valor "Horizontal" do 1º monitor. 2º monitor
 
-# Extrair a largura do primeiro monitor
-largura_monitor1=$(echo "$resolucao1" | cut -dx -f1)
+# Extrair a largura do primeiro monitor (Em teste)
+# largura_monitor1=$(echo "$resolucao1" | cut -dx -f1)
 
-# Construir a nova posição para o segundo monitor
-nova_posicao2="$largura_monitor1x0"
+# Construir a nova posição para o segundo monitor (Em teste)
+# nova_posicao2="$largura_monitor1x0"
 
-# Substituir a variável posicao2
-posicao2="$nova_posicao2" # Posição do 2º monitor, automatico
+# Substituir a variável posicao2 (Em teste)
+# posicao2="$nova_posicao2" # Posição do 2º monitor, automatico
 
 # Substitui 'x' por ','
 posicaox1="$(echo $posicao1 | sed 's/x/,/')"
