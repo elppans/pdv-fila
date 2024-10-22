@@ -84,7 +84,7 @@ interface_param() {
 # Usar com "interface_exec"
 ctsat_exec() {
   pkill -9 lnx_ctsat
-  echo -e "[INICIANDO SERVICO CTSAT]\n"
+  # echo -e "[INICIANDO SERVICO CTSAT]\n"
   cd /Zanthus/Zeus/ctsat
   xterm -T "Servico CTSAT" -geometry 60x24+360+0 -e "$(pwd)/lnx_ctsat.xz64" &
 }
