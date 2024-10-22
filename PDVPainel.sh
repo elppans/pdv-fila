@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Variáveis para configuração de monitores
-
 monitor1='VGA-1'
 monitor2='HDMI-1'
 resolucao1='1024x768'
@@ -79,7 +78,6 @@ interface_param() {
   done
 }
 
-<<<<<<< HEAD
 # Função para executar ctsat
 # Não é necessário para pdvjava_exec
 # Usar com "interface_exec"
@@ -101,8 +99,6 @@ paf_exec() {
   xterm -T "Zeus Frente de Loja" -geometry 60x24+360+0 -e "$(pwd)/lnx_paf.xz64" &
 }
 
-=======
->>>>>>> refs/remotes/origin/main
 # Função para executar o Java (base PDVJava)
 pdvjava_exec() {
   /usr/bin/unclutter 1>/dev/null &
@@ -163,50 +159,6 @@ interface_exec() {
   interface_param
 }
 
-# Função para executar o Interface
-interface_exec() {
-# Configuração de Profile e Storage
-local temp_profile
-local local_storage
-local interface
-
-temp_profile="$HOME/.interface/chromium"
-local_storage="$temp_profile/Default/Local Storage"
-interface="/Zanthus/Zeus/Interface"
-
-mkdir -p "$local_storage"
-chown -R zanthus:zanthus "$interface"
-echo "Iniciando interface..."
-sleeping 10
-
-# Limpar informações de profile, mas manter configuração do interface
-find "$temp_profile" -mindepth 1 -not -path "$local_storage/*" -delete &>>/dev/null
-
-# Executar Chromium com uma nova instância
-setsid nohup chromium-browser --no-sandbox \
---test-type \
---no-default-browser-check \
---no-context-menu \
---disable-gpu \
---disable-session-crashed-bubble \
---disable-infobars \
---disable-background-networking \
---disable-component-extensions-with-background-pages \
---disable-features=SessionRestore \
---disable-restore-session-state \
---disable-features=DesktopPWAsAdditionalWindowingControls \
---disable-features=TabRestore \
---disable-translate \
---disk-cache-dir=/tmp/chromium-cache \
---user-data-dir="$temp_profile" \
---restore-last-session=false \
---autoplay-policy=no-user-gesture-required \
---enable-speech-synthesis \
---kiosk \
-file:///"$interface"/index.html &>>/dev/null &
-interface_param
-}
-
 # Função para executar o Painel Chama Fila
 painel_exec() {
   # Configuração de Profile e Storage
@@ -246,13 +198,8 @@ painel_exec() {
 
 # Execução das funções
 # pdvjava_exec    # Executar o Java (base PDVJava)
-<<<<<<< HEAD
 interface_exec # Executar o Interface (PDVToutch)
 painel_exec    # Executar o Painel Chama Fila
-=======
-interface_exec  # Executar o Interface (PDVToutch)
-painel_exec     # Executar o Painel Chama Fila
->>>>>>> refs/remotes/origin/main
 
 # Finalização
 echo "Esta janela será fechada após..."
