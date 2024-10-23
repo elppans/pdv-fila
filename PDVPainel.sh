@@ -92,7 +92,7 @@ cat > "$popup_script" << EOF
 #!/bin/bash
 while true; do
     # Verifica se algum dos processos está em execução
-    if ! pgrep -f "lnx_receb.xz\|lnx_receb.xz64" >/dev/null; then
+    if ! ps aux | grep -i "lnx_receb" | grep -v grep >/dev/null; then
         # Se nenhum dos processos foi encontrado, executa o popup
         chromium-browser --test-type --no-sandbox --kiosk --incognito --no-context-menu --disable-translate http://127.0.0.1:8080/popup
         # Sai do loop após executar o script
