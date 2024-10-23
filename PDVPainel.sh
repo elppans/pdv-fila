@@ -5,6 +5,9 @@ monitor1='VGA-1'
 monitor2='HDMI-1'
 resolucao1='1024x768'
 resolucao2='1440x900'
+
+# Variáveis para posição dos aplicativos para cada tela
+# VARIAVEIS NÃO EDITAVEIS, FUNCIONALIDADE AUTOMATICA
 posicao1='0x0'   # Posicao Horizontal x Vertical, 1º monitor
 #posicao2='1024x0' # Posição após o valor "Horizontal" do 1º monitor. 2º monitor
 
