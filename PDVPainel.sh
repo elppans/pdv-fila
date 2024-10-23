@@ -82,6 +82,22 @@ interface_param() {
   done
 }
 
+# Função para verificar em loop a execução do CODFON e execução do popup
+function popup_exec() {
+    while true; do
+        # Verifica se algum dos processos está em execução
+        if ! pgrep -f "lnx_receb.xz\|lnx_receb.xz64" >/dev/null; then
+            # Se nenhum dos processos foi encontrado, executa o script popup
+            chmod +x /usr/local/bin/popup
+            popup
+            # Sai do loop após executar o script
+            break
+        fi
+        # Aguarda por um tempo antes de verificar novamente (ajuste conforme necessário)
+        sleep 5
+    done
+}
+
 # Função para executar ctsat
 # Não é necessário para pdvjava_exec
 # Usar com "interface_exec"
@@ -204,6 +220,7 @@ painel_exec() {
 # pdvjava_exec    # Executar o Java (base PDVJava)
 interface_exec # Executar o Interface (PDVToutch)
 painel_exec    # Executar o Painel Chama Fila
+popup_exec &   # Executar popup após encerramento do PDV
 
 # Finalização
 echo "Esta janela será fechada após..."
