@@ -84,10 +84,11 @@ interface_param() {
 
 # Função para verificar em loop a execução do CODFON e execução do popup
 function popup_exec() {
-    while true; do
+    setsid nohup while true; do
         # Verifica se algum dos processos está em execução
         if ! pgrep -f "lnx_receb.xz\|lnx_receb.xz64" >/dev/null; then
             # Se nenhum dos processos foi encontrado, executa o script popup
+            pkill -9 chromium &>>/dev/null
             chmod +x /usr/local/bin/popup
             popup
             # Sai do loop após executar o script
