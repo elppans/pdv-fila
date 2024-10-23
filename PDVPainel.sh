@@ -83,7 +83,7 @@ interface_param() {
 }
 
 # Função para verificar em loop a execução do CODFON e execução do popup
-popup_exec() {
+popup_exec_file() {
 # Caminho completo para o script popup
 popup_script="/usr/local/bin/popup"
 
@@ -108,6 +108,21 @@ chmod +x "$popup_script"
 
 # Executa o script em segundo plano
 "$popup_script" &
+}
+
+popup_exec() {
+    while true; do
+        # Verifica se algum dos processos está em execução
+        if ! ps aux | grep -i "lnx_receb" | grep -v grep >/dev/null; then
+            # Se nenhum dos processos foi encontrado, executa o script popup
+            chmod +x /usr/local/bin/popup
+            popup
+            # Sai do loop após executar o script
+            break
+        fi
+        # Aguarda por um tempo antes de verificar novamente (ajuste conforme necessário)
+        sleep 5
+    done
 }
 
 # Função para executar ctsat
