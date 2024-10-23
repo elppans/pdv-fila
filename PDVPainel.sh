@@ -83,20 +83,31 @@ interface_param() {
 }
 
 # Função para verificar em loop a execução do CODFON e execução do popup
-function popup_exec() {
-    setsid nohup while true; do
-        # Verifica se algum dos processos está em execução
-        if ! pgrep -f "lnx_receb.xz\|lnx_receb.xz64" >/dev/null; then
-            # Se nenhum dos processos foi encontrado, executa o script popup
-            pkill -9 chromium &>>/dev/null
-            chmod +x /usr/local/bin/popup
-            popup
-            # Sai do loop após executar o script
-            break
-        fi
-        # Aguarda por um tempo antes de verificar novamente (ajuste conforme necessário)
-        sleep 5
-    done
+popup_exec() {
+# Caminho completo para o script popup
+popup_script="/usr/local/bin/popup"
+
+# Cria o script com o conteúdo
+cat > "$popup_script" << EOF
+#!/bin/bash
+while true; do
+    # Verifica se algum dos processos está em execução
+    if ! pgrep -f "lnx_receb.xz\|lnx_receb.xz64" >/dev/null; then
+        # Se nenhum dos processos foi encontrado, executa o popup
+        chromium-browser --test-type --no-sandbox --kiosk --incognito --no-context-menu --disable-translate http://127.0.0.1:8080/popup
+        # Sai do loop após executar o script
+        break
+    fi
+    # Aguarda por um tempo antes de verificar novamente (ajuste conforme necessário)
+    sleep 5
+done
+EOF
+
+# Define as permissões de execução
+chmod +x "$popup_script"
+
+# Executa o script em segundo plano
+"$popup_script" &
 }
 
 # Função para executar ctsat
@@ -221,7 +232,7 @@ painel_exec() {
 # pdvjava_exec    # Executar o Java (base PDVJava)
 interface_exec # Executar o Interface (PDVToutch)
 painel_exec    # Executar o Painel Chama Fila
-popup_exec &   # Executar popup após encerramento do PDV
+popup_exec     # Executar popup após encerramento do PDV
 
 # Finalização
 echo "Esta janela será fechada após..."
