@@ -228,8 +228,14 @@ painel_exec() {
     http://127.0.0.1:9090/moduloPHPPDV/painel.php --window-position="$posicaox2" &>>/dev/null &
 }
 
+# Função para suporte a áudio no Painel.
+audio_exec() {
+  nohup pulseaudio -D --system &
+}
+
 # Execução das funções
-# pdvjava_exec    # Executar o Java (base PDVJava)
+# audio_exec     # Executar e ativar audio para o Painel Chama Fila
+# pdvjava_exec   # Executar o Java (base PDVJava)
 interface_exec # Executar o Interface (PDVToutch)
 painel_exec    # Executar o Painel Chama Fila
 popup_exec     # Executar popup após encerramento do PDV
