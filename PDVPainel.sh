@@ -4,7 +4,7 @@
 monitor1='VGA-1'
 monitor2='HDMI-1'
 resolucao1='1024x768'
-resolucao2='1440x900'
+resolucao2='1366x768'
 
 # Variáveis para posição dos aplicativos para cada tela
 # VARIAVEIS NÃO EDITAVEIS, FUNCIONALIDADE AUTOMATICA
@@ -35,8 +35,20 @@ export posicao2
 export posicaox1
 export posicaox2
 
+echo "monitor1: $monitor1"
+echo "monitor2: $monitor2"
+echo "resolucao1: $resolucao1"
+echo "resolucao2: $resolucao2"
+echo "posicao1: $posicao1"
+echo "posicao2: $posicao1"
+echo "posicaox1: $posicaox1"
+echo "posicaox2: $posicaox2"
+
 # Configura a resolução e posição dos monitores
 xrandr --output "$monitor1" --mode "$resolucao1" --pos "$posicao1" --output "$monitor2" --mode "$resolucao2" --pos "$posicao2"
+
+# Sair para teste, ver se a resolução funciona:
+# exit
 
 # Função para definir um Loop/Tempo
 sleeping() {
@@ -58,6 +70,8 @@ pdvjava_param() {
       clear
     else
       # Garantir que o Java seja configurado na posição parametrizada.
+      # wmctrl -i -r $WMID -e "0,$posicaox1,-1,-1"
+      # posicaox1 = Monitor 1, posicaox2 = Monitor 2
       wmctrl -i -r $WMID -e "0,$posicaox1,-1,-1"
       echo "Janela 'Zanthus Retail' encontrada e configurada."
       break
@@ -75,7 +89,8 @@ interface_param() {
       clear
     else
       # Garantir que o Java seja configurado na posição parametrizada.
-      wmctrl -i -r $WMID -e "0,$posicaox1,-1,-1"
+      # posicaox1 = Monitor 1, posicaox2 = Monitor 2
+      wmctrl -i -r $WMID -e "0,$posicaox2,-1,-1"
       echo "Janela 'Interface PDV' encontrada e configurada."
       break
     fi
@@ -191,6 +206,53 @@ interface_exec() {
   interface_param
 }
 
+# Função para executar o Interface
+interface_exec() {
+  paf_exec   # Executar o CODFON
+  ctsat_exec # Executar o ctsat
+
+  # Configuração de Profile e Storage
+  local temp_profile
+  local local_storage
+  local interface
+
+  temp_profile="$HOME/.interface/chromium"
+  local_storage="$temp_profile/Default/Local Storage"
+  interface="/Zanthus/Zeus/Interface"
+
+  mkdir -p "$local_storage"
+  chown -R zanthus:zanthus "$interface"
+  echo "Iniciando interface..."
+  sleeping 10
+
+  # Limpar informações de profile, mas manter configuração do interface
+  find "$temp_profile" -mindepth 1 -not -path "$local_storage/*" -delete &>>/dev/null
+
+  # Executar Chromium com uma nova instância
+  setsid nohup chromium-browser --no-sandbox \
+    --test-type \
+    --no-default-browser-check \
+    --no-context-menu \
+    --disable-gpu \
+    --disable-session-crashed-bubble \
+    --disable-infobars \
+    --disable-background-networking \
+    --disable-component-extensions-with-background-pages \
+    --disable-features=SessionRestore \
+    --disable-restore-session-state \
+    --disable-features=DesktopPWAsAdditionalWindowingControls \
+    --disable-features=TabRestore \
+    --disable-translate \
+    --disk-cache-dir=/tmp/chromium-cache \
+    --user-data-dir="$temp_profile" \
+    --restore-last-session=false \
+    --autoplay-policy=no-user-gesture-required \
+    --enable-speech-synthesis \
+    --kiosk \
+    file:///"$interface"/index.html &>>/dev/null &
+  interface_param
+}
+
 # Função para executar o Painel Chama Fila
 painel_exec() {
   # Configuração de Profile e Storage
@@ -235,9 +297,9 @@ audio_exec() {
 
 # Execução das funções
 # audio_exec     # Executar e ativar audio para o Painel Chama Fila
-# pdvjava_exec   # Executar o Java (base PDVJava)
+pdvjava_exec   # Executar o Java (base PDVJava)
 interface_exec # Executar o Interface (PDVToutch)
-painel_exec    # Executar o Painel Chama Fila
+# painel_exec    # Executar o Painel Chama Fila
 popup_exec     # Executar popup após encerramento do PDV
 
 # Finalização
