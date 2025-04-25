@@ -97,6 +97,42 @@ interface_param() {
   done
 }
 
+# Função para verificar e OCULTAR a janela "Servico CTSAT"
+ctsat_ocultar() {
+  while true; do
+    WMID=$(wmctrl -l | grep "Servico CTSAT" | cut -d " " -f1)
+    if [ -z "$WMID" ]; then
+      echo "Aguardando 'Servico CTSAT' iniciar..."
+      sleeping 5
+      clear
+    else
+      # Garantir que o Java seja configurado na posição parametrizada.
+      # posicaox1 = Monitor 1, posicaox2 = Monitor 2
+      wmctrl -i -r $WMID -b add,hidden
+      echo "Janela 'Servico CTSAT' encontrada e configurada."
+      break
+    fi
+  done
+}
+
+# Função para verificar e OCULTAR a janela "Zeus Frente de Loja"
+paf_ocultar() {
+  while true; do
+    WMID=$(wmctrl -l | grep "Zeus Frente de Loja" | cut -d " " -f1)
+    if [ -z "$WMID" ]; then
+      echo "Aguardando 'Zeus Frente de Loja' iniciar..."
+      sleeping 5
+      clear
+    else
+      # Garantir que o Java seja configurado na posição parametrizada.
+      # posicaox1 = Monitor 1, posicaox2 = Monitor 2
+      wmctrl -i -r $WMID -b add,hidden
+      echo "Janela 'Zeus Frente de Loja' encontrada e configurada."
+      break
+    fi
+  done
+}
+
 # Função para verificar em loop a execução do CODFON e execução do popup
 popup_exec() {
 # Caminho completo para o script popup
@@ -133,6 +169,7 @@ ctsat_exec() {
   # echo -e "[INICIANDO SERVICO CTSAT]\n"
   cd /Zanthus/Zeus/ctsat
   xterm -T "Servico CTSAT" -geometry 60x24+360+0 -e "$(pwd)/lnx_ctsat.xz64" &
+  ctsat_ocultar  # Ocultar/Minimizar a janela do CTSAT
 }
 
 # Função para executar o paf/receb
@@ -144,6 +181,7 @@ paf_exec() {
   cd /Zanthus/Zeus/pdvJava
   export LANG=pt_BR.ISO8859-1
   xterm -T "Zeus Frente de Loja" -geometry 60x24+360+0 -e "$(pwd)/lnx_paf.xz64" &
+  paf_ocultar # Ocultar/Minimizar a janela do "Zeus Frente de Loja"
 }
 
 # Função para executar o Java (base PDVJava)
@@ -301,6 +339,7 @@ pdvjava_exec   # Executar o Java (base PDVJava)
 interface_exec # Executar o Interface (PDVToutch)
 # painel_exec    # Executar o Painel Chama Fila
 popup_exec     # Executar popup após encerramento do PDV
+
 
 # Finalização
 echo "Esta janela será fechada após..."
