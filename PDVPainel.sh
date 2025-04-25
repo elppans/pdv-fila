@@ -245,7 +245,7 @@ interface_exec() {
 }
 
 # Função para executar o Interface
-interface_exec() {
+interface_cliente_exec() {
   paf_exec   # Executar o CODFON
   ctsat_exec # Executar o ctsat
 
@@ -287,8 +287,8 @@ interface_exec() {
     --autoplay-policy=no-user-gesture-required \
     --enable-speech-synthesis \
     --kiosk \
-    file:///"$interface"/index.html &>>/dev/null &
-  interface_param
+    file:///"$interface"/cliente.html &>>/dev/null &
+  # interface_cliente_param
 }
 
 # Função para executar o Painel Chama Fila
