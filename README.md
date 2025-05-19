@@ -10,11 +10,12 @@ ___
 xterm -e /Zanthus/Zeus/pdvJava/PDVPainel.sh
 ```
 ___
-# Script Chama Fila: Configuração e Utilização
+# Script `PDVFunctions.sh`: Configuração e Utilização
 
 **Descrição:**
 
 Este script automatiza o processo de chamada de fila, integrando-se com sistemas PDV Java e Interfaces. Ele oferece flexibilidade para configurar e executar diferentes componentes de acordo com a necessidade.
+>Configure `PDVFunctions.sh` no lugar de `PDVPainel.sh`
 
 **Funcionamento:**
 
