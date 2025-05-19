@@ -8,7 +8,7 @@ resolucao2='1366x768'
 
 # Variáveis para posição dos aplicativos para cada tela
 # VARIAVEIS NÃO EDITAVEIS, FUNCIONALIDADE AUTOMATICA
-posicao1='0x0'   # Posicao Horizontal x Vertical, 1º monitor
+posicao1='0x0' # Posicao Horizontal x Vertical, 1º monitor
 #posicao2='1024x0' # Posição após o valor "Horizontal" do 1º monitor. 2º monitor
 
 # Extrair a largura do primeiro monitor
@@ -19,7 +19,6 @@ nova_posicao2="${largura_monitor1}x0"
 
 # Substituir a variável posicao2
 posicao2="$nova_posicao2" # Posição do 2º monitor, automatico
-
 
 # Substitui 'x' por ','
 posicaox1="$(echo $posicao1 | sed 's/x/,/')"
@@ -135,11 +134,11 @@ paf_ocultar() {
 
 # Função para verificar em loop a execução do CODFON e execução do popup
 popup_exec() {
-# Caminho completo para o script popup
-popup_script="/usr/local/bin/popup"
+  # Caminho completo para o script popup
+  popup_script="/usr/local/bin/popup"
 
-# Cria o script com o conteúdo
-cat > "$popup_script" << EOF
+  # Cria o script com o conteúdo
+  cat >"$popup_script" <<EOF
 #!/bin/bash
 while true; do
     # Verifica se algum dos processos está em execução
@@ -154,11 +153,11 @@ while true; do
 done
 EOF
 
-# Define as permissões de execução
-chmod +x "$popup_script"
+  # Define as permissões de execução
+  chmod +x "$popup_script"
 
-# Executa o script em segundo plano
-setsid nohup "$popup_script" &
+  # Executa o script em segundo plano
+  setsid nohup "$popup_script" &
 }
 
 # Função para executar ctsat
@@ -169,7 +168,7 @@ ctsat_exec() {
   # echo -e "[INICIANDO SERVICO CTSAT]\n"
   cd /Zanthus/Zeus/ctsat
   xterm -T "Servico CTSAT" -geometry 60x24+360+0 -e "$(pwd)/lnx_ctsat.xz64" &
-  ctsat_ocultar  # Ocultar/Minimizar a janela do CTSAT
+  ctsat_ocultar # Ocultar/Minimizar a janela do CTSAT
 }
 
 # Função para executar o paf/receb
@@ -181,11 +180,24 @@ paf_exec() {
   cd /Zanthus/Zeus/pdvJava
   export LANG=pt_BR.ISO8859-1
   xterm -T "Zeus Frente de Loja" -geometry 60x24+360+0 -e "$(pwd)/lnx_paf.xz64" &
-  paf_ocultar # Ocultar/Minimizar a janela do "Zeus Frente de Loja"
+  # paf_oc
+  # paf_ocultar # Ocultar/Minimizar a janela do "Zeus Frente de Loja"
 }
 
 # Função para executar o Java (base PDVJava)
 pdvjava_exec() {
+  # Arquivo pdvJava2 a ser verificado
+  ARQUIVO="/Zanthus/Zeus/pdvJava/pdvJava2"
+
+  # Verifica se a linha contendo "lnx_paf" está comentada
+  # if grep -q "^[^#]*lnx_paf" "$ARQUIVO"; then
+    # Se não estiver comentada, comenta a linha
+    # sed -i 's/^\([^#]*lnx_paf.*\)$/#\1/' "$ARQUIVO"
+    # echo "Linha encontrada e comentada."
+  # else
+    # echo "Linha já está comentada ou não encontrada."
+  # fi
+
   /usr/bin/unclutter 1>/dev/null &
   chmod +x /usr/local/bin/igraficaJava
   chmod -x /usr/local/bin/dualmonitor_control-PDVJava
@@ -199,8 +211,8 @@ pdvjava_exec() {
 
 # Função para executar o Interface
 interface_exec() {
-  paf_exec   # Executar o CODFON
-  ctsat_exec # Executar o ctsat
+  # paf_exec   # Executar o CODFON
+  # ctsat_exec # Executar o ctsat
 
   # Configuração de Profile e Storage
   local temp_profile
@@ -246,8 +258,8 @@ interface_exec() {
 
 # Função para executar o Interface
 interface_cliente_exec() {
-  paf_exec   # Executar o CODFON
-  ctsat_exec # Executar o ctsat
+  # paf_exec   # Executar o CODFON
+  # ctsat_exec # Executar o ctsat
 
   # Configuração de Profile e Storage
   local temp_profile
@@ -333,14 +345,17 @@ audio_exec() {
   nohup pulseaudio -D --system &
 }
 
+# Execução de núcleos
+# paf_exec   # Executar o CODFON (Ative esta linha APENAS se não usar "pdvjava_exec")
+ctsat_exec # Executar o ctsat
+
 # Execução das funções
 # audio_exec     # Executar e ativar audio para o Painel Chama Fila
-pdvjava_exec   # Executar o Java (base PDVJava)
 interface_exec # Executar o Interface (PDVToutch)
 # interface_cliente_exec # Executar o Interface Cliente (PDVToutchDual)
 # painel_exec    # Executar o Painel Chama Fila
-popup_exec     # Executar popup após encerramento do PDV
-
+pdvjava_exec # Executar o Java (base PDVJava)
+# popup_exec   # Executar popup após encerramento do PDV
 
 # Finalização
 echo "Esta janela será fechada após..."
