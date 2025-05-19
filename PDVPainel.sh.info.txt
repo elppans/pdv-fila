@@ -1,0 +1,2 @@
+O arquivo "PDVPainel.sh" foi renomeado para PDVFunctions.sh
+Chama Fila original usa um Script com o nome PDVPainel.sh que está compactado em um arquivo .zip que se localiza no FTP.
