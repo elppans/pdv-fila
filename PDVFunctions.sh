@@ -175,28 +175,39 @@ ctsat_exec() {
 # Não é necessário para pdvjava_exec
 # Usar com "interface_exec"
 paf_exec() {
+  cd /Zanthus/Zeus/pdvJava
+  # "$(pwd)/lnx_paf.xz64" &
+  # sleeping 15
   pkill -9 lnx_paf
   pkill -9 lnx_receb
-  cd /Zanthus/Zeus/pdvJava
   export LANG=pt_BR.ISO8859-1
   xterm -T "Zeus Frente de Loja" -geometry 60x24+360+0 -e "$(pwd)/lnx_paf.xz64" &
-  # paf_oc
+  paf_ocultar # Ocultar/Minimizar a janela do "Zeus Frente de Loja"
+}
+
+# Função para executar o CTIMP
+# Não é necessário para pdvjava_exec
+ctimp_exec() {
+  pkill -9 lnx_ctimp
+  cd /Zanthus/Zeus/pdvJava/ctimp_223
+  xterm -T "CTIMP" -geometry 60x24+360+0 -e "$(pwd)/lnx_ctimp.xz64" &
   # paf_ocultar # Ocultar/Minimizar a janela do "Zeus Frente de Loja"
 }
 
 # Função para executar o Java (base PDVJava)
 pdvjava_exec() {
+  pkill -9 java
   # Arquivo pdvJava2 a ser verificado
   ARQUIVO="/Zanthus/Zeus/pdvJava/pdvJava2"
 
   # Verifica se a linha contendo "lnx_paf" está comentada
-  # if grep -q "^[^#]*lnx_paf" "$ARQUIVO"; then
+   # if grep -q "^[^#]*lnx_paf" "$ARQUIVO"; then
     # Se não estiver comentada, comenta a linha
-    # sed -i 's/^\([^#]*lnx_paf.*\)$/#\1/' "$ARQUIVO"
-    # echo "Linha encontrada e comentada."
-  # else
-    # echo "Linha já está comentada ou não encontrada."
-  # fi
+     # sed -i 's/^\([^#]*lnx_paf.*\)$/#\1/' "$ARQUIVO"
+     # echo "Linha encontrada e comentada."
+   # else
+     # echo "Linha já está comentada ou não encontrada."
+   # fi
 
   /usr/bin/unclutter 1>/dev/null &
   chmod +x /usr/local/bin/igraficaJava
@@ -347,14 +358,24 @@ audio_exec() {
 
 # Execução de núcleos
 # paf_exec   # Executar o CODFON (Ative esta linha APENAS se não usar "pdvjava_exec")
-ctsat_exec # Executar o ctsat
+# ctsat_exec # Executar o ctsat
+# ctimp_exec
 
-# Execução das funções
+# Execução das funções/aplicações
 # audio_exec     # Executar e ativar audio para o Painel Chama Fila
-interface_exec # Executar o Interface (PDVToutch)
+# interface_exec # Executar o Interface (PDVToutch)
 # interface_cliente_exec # Executar o Interface Cliente (PDVToutchDual)
 # painel_exec    # Executar o Painel Chama Fila
-pdvjava_exec # Executar o Java (base PDVJava)
+ pdvjava_exec # Executar o Java (base PDVJava)
+
+# 2025.06.23 Teclado USB Smak "SKO-44" (IRQ 0425:0111). Visor não funciona.
+# JAVA = A aplicação com o núcleo será executado, mas não irá funcionar
+# Ativar novamente as funções de núcleo  e aplicação.
+# Esta ação irá matar o núcleo e a aplicação e executar novamente.
+# Após a reexecução, o visor irá funcionar normalmente.
+ paf_exec
+ pdvjava_exec
+
 # popup_exec   # Executar popup após encerramento do PDV
 
 # Finalização
