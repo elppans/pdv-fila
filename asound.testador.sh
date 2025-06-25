@@ -29,6 +29,7 @@ listar_dispositivos() {
 salvar_como_padrao() {
     local card="$1"
     local device="$2"
+    echo "DEBUG: card=$card, device=$device"  # Linha de debug temporária
     local arquivo="$HOME/.asoundrc"
     cat > "$arquivo" <<EOF
 pcm.!default {
