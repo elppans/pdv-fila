@@ -94,8 +94,12 @@ loop_principal() {
 
         linha_escolhida="${dispositivos[$escolha]}"
         # Extrai card e device diretamente da string formatada
-        card=$(echo "$linha_escolhida" | awk -F'[, ]+' '{print $2}')
-        device=$(echo "$linha_escolhida" | awk -F'[, ]+' '{print $6}')
+        # dispositivo=$(echo "$linha_escolhida" | awk '{print $2}' | sed 's/hw://')
+        # card=$(echo "$dispositivo" | cut -d',' -f1)
+        # device=$(echo "$dispositivo" | cut -d',' -f2)
+
+        card=$(echo "$linha_escolhida" | awk -F'[, ]+' '{print $1}')
+        device=$(echo "$linha_escolhida" | awk -F'[, ]+' '{print $2}')
         dispositivo="${card},${device}"
 
         # Adicione também um debug temporário para verificar:
