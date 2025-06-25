@@ -26,7 +26,7 @@ for entrada in "${dispositivos[@]}"; do
         kill $pid
     fi
 
-    sleep 1
+    sleep 3
 done
 
 echo
