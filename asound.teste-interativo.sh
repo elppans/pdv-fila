@@ -21,10 +21,6 @@ for i in "${!dispositivos[@]}"; do
 done
 
 # Exibe menu para escolher o dispositivo
-# configuração de menu:
-# 15 → altura da caixa
-# 60 → largura
-# 6 → número de linhas de opções
 escolha=$(dialog --clear --title "Testador de Áudio ALSA" \
     --menu "Selecione um dispositivo para testar:" 15 60 6 \
     "${menu_items[@]}" \
@@ -37,14 +33,13 @@ if [ -z "$escolha" ]; then
     exit 1
 fi
 
-# Pega o dispositivo selecionado
 selecionado="${dispositivos[$escolha]}"
 
 # Pergunta se quer testar com hw ou plughw
 metodo=$(dialog --clear --title "Modo de Teste" \
     --menu "Escolha o modo de acesso ao dispositivo:" 12 72 2 \
-    "hw" "Acesso direto (pode falhar se o formato não for suportado)" \
-    "plughw" "Acesso com conversão automática (recomendado)" \
+    "hw" "Acesso direto (pode falhar se o formato não for aceito)" \
+    "plughw" "Acesso com conversão automática (mais seguro)" \
     3>&1 1>&2 2>&3)
 
 if [ -z "$metodo" ]; then
@@ -53,15 +48,18 @@ if [ -z "$metodo" ]; then
     exit 1
 fi
 
-# Limpa tela e mostra mensagem
-clear
-echo "🔊 Testando som com: $metodo:$selecionado (tom senoidal por 3 segundos)..."
+# Mostra caixa de informação enquanto toca o som
+dialog --title "🔊 Testando áudio" --infobox \
+"Testando som com: ${metodo}:${selecionado}\n\nVocê ouvirá um tom de 440Hz por 3 segundos..." 8 60
 
-# Roda o teste
-speaker-test -t sine -f 440 -D ${metodo}:${selecionado} -c 2 -l 1 &
-
+# Executa o teste em background
+speaker-test -t sine -f 440 -D ${metodo}:${selecionado} -c 2 -l 1 >/dev/null 2>&1 &
 pid=$!
 sleep 4
 kill $pid 2>/dev/null
 
-echo "✅ Teste finalizado. Se ouviu som, esse dispositivo está funcional."
+# Mostra resultado
+dialog --title "✅ Teste finalizado" --msgbox \
+"O teste foi concluído.\n\nSe você ouviu som, o dispositivo ${metodo}:${selecionado} está funcionando corretamente!" 8 60
+
+clear
