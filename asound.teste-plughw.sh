@@ -15,7 +15,7 @@ for entrada in "${dispositivos[@]}"; do
     echo "🔁 Testando hw:${card},${device} ..."
 
     # Rodar o speaker-test por 3 segundos
-    speaker-test -t sine -f 440 -D plughw:${card},${device} -c 2 -l 1 &
+    speaker-test -t wav -f 440 -D plughw:${card},${device} -c 2 -l 1 &
     pid=$!
     
     # Esperar um pouco mais para garantir que o som saia
