@@ -27,8 +27,8 @@ listar_dispositivos() {
 
 # Função para escrever .asoundrc
 salvar_como_padrao() {
-    local card="$card"
-    local device="$dev"
+    local card="$1"
+    local device="$2"
     local arquivo="$HOME/.asoundrc"
     cat > "$arquivo" <<EOF
 pcm.!default {
