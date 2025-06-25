@@ -21,6 +21,10 @@ for i in "${!dispositivos[@]}"; do
 done
 
 # Exibe menu para escolher o dispositivo
+# configuração de menu:
+# 15 → altura da caixa
+# 60 → largura
+# 6 → número de linhas de opções
 escolha=$(dialog --clear --title "Testador de Áudio ALSA" \
     --menu "Selecione um dispositivo para testar:" 15 60 6 \
     "${menu_items[@]}" \
@@ -38,7 +42,7 @@ selecionado="${dispositivos[$escolha]}"
 
 # Pergunta se quer testar com hw ou plughw
 metodo=$(dialog --clear --title "Modo de Teste" \
-    --menu "Escolha o modo de acesso ao dispositivo:" 10 50 2 \
+    --menu "Escolha o modo de acesso ao dispositivo:" 12 72 2 \
     "hw" "Acesso direto (pode falhar se o formato não for suportado)" \
     "plughw" "Acesso com conversão automática (recomendado)" \
     3>&1 1>&2 2>&3)
