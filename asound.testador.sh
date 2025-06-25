@@ -29,7 +29,7 @@ listar_dispositivos() {
 salvar_como_padrao() {
     local card="$1"
     local device="$2"
-    echo "DEBUG: card=$card, device=$device"  # Linha de debug temporária
+    # echo "DEBUG: card=$card, device=$device" >> "$LOG_FILE" # Linha de debug temporária
     local arquivo="$HOME/.asoundrc"
     cat > "$arquivo" <<EOF
 pcm.!default {
@@ -92,15 +92,15 @@ loop_principal() {
             "${menu_itens[@]}" \
             3>&1 1>&2 2>&3) || break
 
-linha_escolhida="${dispositivos[$escolha]}"
-# Extrai card e device diretamente da string formatada
-card=$(echo "$linha_escolhida" | awk -F'[, ]+' '{print $3}')
-device=$(echo "$linha_escolhida" | awk -F'[, ]+' '{print $4}')
-dispositivo="${card},${device}"
+        linha_escolhida="${dispositivos[$escolha]}"
+        # Extrai card e device diretamente da string formatada
+        card=$(echo "$linha_escolhida" | awk -F'[, ]+' '{print $2}')
+        device=$(echo "$linha_escolhida" | awk -F'[, ]+' '{print $6}')
+        dispositivo="${card},${device}"
 
-# Adicione também um debug temporário para verificar:
-echo "DEBUG: linha_escolhida=$linha_escolhida" >> "$LOG_FILE"
-echo "DEBUG: card=$card, device=$device" >> "$LOG_FILE"
+        # Adicione também um debug temporário para verificar:
+        echo "DEBUG: linha_escolhida=$linha_escolhida" >> "$LOG_FILE"
+        echo "DEBUG: card=$card, device=$device" >> "$LOG_FILE"
 
         # Seleção do modo
         metodo=$(dialog --clear --title "Modo de Teste" \
