@@ -92,10 +92,15 @@ loop_principal() {
             "${menu_itens[@]}" \
             3>&1 1>&2 2>&3) || break
 
-        linha_escolhida="${dispositivos[$escolha]}"
-        dispositivo=$(echo "$linha_escolhida" | awk '{print $2}' | sed 's/hw://')
-        card=$(echo "$dispositivo" | cut -d',' -f1)
-        device=$(echo "$dispositivo" | cut -d',' -f2)
+linha_escolhida="${dispositivos[$escolha]}"
+# Extrai card e device diretamente da string formatada
+card=$(echo "$linha_escolhida" | awk -F'[, ]+' '{print $3}')
+device=$(echo "$linha_escolhida" | awk -F'[, ]+' '{print $4}')
+dispositivo="${card},${device}"
+
+# Adicione também um debug temporário para verificar:
+echo "DEBUG: linha_escolhida=$linha_escolhida" >> "$LOG_FILE"
+echo "DEBUG: card=$card, device=$device" >> "$LOG_FILE"
 
         # Seleção do modo
         metodo=$(dialog --clear --title "Modo de Teste" \
