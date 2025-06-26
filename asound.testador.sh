@@ -156,7 +156,7 @@ fi
 
 
         # Deseja testar outro?
-        dialog --yesno "Deseja testar outro dispositivo?" 7 50 || continue
+        # dialog --yesno "Deseja testar outro dispositivo?" 7 50 || continue
     done
 
     clear
