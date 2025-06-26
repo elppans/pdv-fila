@@ -80,34 +80,16 @@ loop_principal() {
         # Cria lista de seleção
         menu_itens=()
         for linha in "${dispositivos[@]}"; do
-            idx=$(echo "$linha" | cut -d' ' -f1- | grep -oP '^card:\K[0-9]+')
+            idx=$(echo "$linha" | awk '{print $1}')
             desc=$(echo "$linha" | cut -d' ' -f2-)
             menu_itens+=("$idx" "$desc")
         done
-# for linha in "${!dispositivos[@]}"; do
-#     # Extrai o card NÚMERO a partir da string 'card:N '
-#     card_id=$(echo "${dispositivos[$linha]}" | grep -oP '^card:\K[0-9]+')
-#     desc=$(echo "${dispositivos[$linha]}" | cut -d' ' -f2-)
-#     menu_itens+=("$card_id" "$desc")
-# done
 
-        # Seleção de dispositivo
         # Seleção de dispositivo
         escolha=$(dialog --clear --title "Testador de Áudio ALSA" \
             --menu "Selecione um dispositivo para testar:" 20 72 10 \
             "${menu_itens[@]}" \
             3>&1 1>&2 2>&3) || break
-
-        # Verifica se a escolha é um número válido dentro do array
-        if ! [[ "$escolha" =~ ^[0-9]+$ ]] || [ "$escolha" -ge "${#dispositivos[@]}" ]; then
-            # dialog --msgbox "Escolha inválida ou cancelada: $escolha" 7 40
-            # dialog --msgbox "Escolha inválida ou cancelada: $menu_itens" 7 40
-            # dialog --msgbox "Escolha inválida ou cancelada: $idx" 7 40
-            # dialog --msgbox "Escolha inválida ou cancelada: $desc" 7 40
-            dialog --msgbox "Escolha inválida ou cancelada: $linha" 7 40
-            continue
-        fi
-
 
         linha_escolhida="${dispositivos[$escolha]}"
         # Extrai card e device diretamente da string formatada
