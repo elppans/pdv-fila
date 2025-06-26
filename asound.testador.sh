@@ -5,7 +5,7 @@ set -euo pipefail
 LOG_FILE="/tmp/asound-teste.log"
 touch "$LOG_FILE"
 
-# Verifica se os utilitários necessários estão disponíveis
+# Verifica dependências
 for cmd in dialog aplay speaker-test; do
     if ! command -v "$cmd" &>/dev/null; then
         echo "❌ Requer o comando '$cmd'. Instale com: sudo apt install alsa-utils dialog"
@@ -13,23 +13,15 @@ for cmd in dialog aplay speaker-test; do
     fi
 done
 
-# Função para obter lista de dispositivos com nomes amigáveis
+# Lista dispositivos no formato limpo do aplay -l
 listar_dispositivos() {
-    local idx=0
-    mapfile -t dispositivos < <(aplay -l | awk -F'[:,]' '/^card/ {
-        gsub(/^[ \t]+|[ \t]+$/, "", $0)
-        card=$2; name=$3; dev=$6; descr=$7
-        gsub(/^[ \t]+|[ \t]+$/, "", name)
-        gsub(/^[ \t]+|[ \t]+$/, "", descr)
-        printf("%s hw:%s,%s - %s: %s\n", idx++, card, dev, name, descr)
-    }')
+    mapfile -t dispositivos < <(aplay -l | awk '/^card/ {print $0}')
 }
 
-# Função para escrever .asoundrc
+# Salva configuração no .asoundrc
 salvar_como_padrao() {
     local card="$1"
     local device="$2"
-    # echo "DEBUG: card=$card, device=$device" >> "$LOG_FILE" # Linha de debug temporária
     local arquivo="$HOME/.asoundrc"
     cat > "$arquivo" <<EOF
 pcm.!default {
@@ -42,22 +34,22 @@ ctl.!default {
     card ${card}
 }
 EOF
-    dialog --msgbox "Dispositivo salvo como padrão em:\n$arquivo" 8 50
+    dialog --msgbox "Configuração salva em:\n$arquivo\n\nCard: ${card}\nDevice: ${device}" 10 50
 }
 
-# Função de teste com som de 440Hz
+# Teste com tom de 440Hz
 teste_som_hw() {
     local metodo="$1"
     local dispositivo="$2"
     dialog --title "🔊 Testando áudio" --infobox \
-    "Testando som com: ${metodo}:${dispositivo}\nVocê ouvirá um tom de 440Hz por 3 segundos..." 8 60
+    "Testando som com: ${metodo}:${dispositivo}\nTom de 440Hz por 3 segundos..." 8 60
     speaker-test -t sine -f 440 -D "${metodo}:${dispositivo}" -c 2 -l 1 >/dev/null 2>&1 &
     pid=$!
     sleep 4
     kill $pid 2>/dev/null
 }
 
-# Função de teste com arquivo WAV
+# Teste com arquivo WAV
 teste_som_wav() {
     local metodo="$1"
     local dispositivo="$2"
@@ -68,72 +60,64 @@ teste_som_wav() {
     aplay -D "${metodo}:${dispositivo}" /usr/share/sounds/alsa/Front_Center.wav
 }
 
-# Função principal de loop
+# Loop principal
 loop_principal() {
     while true; do
         listar_dispositivos
 
         if [ ${#dispositivos[@]} -eq 0 ]; then
-            dialog --msgbox "Nenhum dispositivo de saída encontrado com 'aplay -l'." 8 50
+            dialog --msgbox "Nenhum dispositivo de áudio encontrado!" 8 50
             exit 1
         fi
 
-        # Cria lista de seleção
+        # Cria menu (índices invisíveis)
         menu_itens=()
+        local idx=0
         for linha in "${dispositivos[@]}"; do
-            idx=$(echo "$linha" | awk '{print $1}')
-            desc=$(echo "$linha" | cut -d' ' -f2-)
-            menu_itens+=("$idx" "$desc")
+            menu_itens+=("$idx" "$linha")
+            ((idx++))
         done
 
-        # Seleção de dispositivo
-        escolha=$(dialog --clear --title "Testador de Áudio ALSA" \
-            --menu "Selecione um dispositivo para testar:" 20 72 10 \
-            "${menu_itens[@]}" \
-            3>&1 1>&2 2>&3) || break
+        # Seleção do dispositivo
+        escolha=$(dialog --menu "Selecione o dispositivo:" 20 80 10 \
+            "${menu_itens[@]}" 3>&1 1>&2 2>&3) || break
 
         linha_escolhida="${dispositivos[$escolha]}"
-        # Extrai card e device diretamente da string formatada
-        # dispositivo=$(echo "$linha_escolhida" | awk '{print $2}' | sed 's/hw://')
-        # card=$(echo "$dispositivo" | cut -d',' -f1)
-        # device=$(echo "$dispositivo" | cut -d',' -f2)
+        
+        # Extrai card e device
+        card=$(echo "$linha_escolhida" | awk '{print $2}' | tr -d ':')
+        device=$(echo "$linha_escolhida" | awk -F'device |:' '{print $2}' | tr -d ' ')
 
-        card=$(echo "$linha_escolhida" | awk -F'[, ]+' '{print $1}')
-        device=$(echo "$linha_escolhida" | awk -F'[, ]+' '{print $2}')
-        dispositivo="${card},${device}"
-
-        # Adicione também um debug temporário para verificar:
-        echo "DEBUG: linha_escolhida=$linha_escolhida" >> "$LOG_FILE"
-        echo "DEBUG: card=$card, device=$device" >> "$LOG_FILE"
-
-        # Seleção do modo
-        metodo=$(dialog --clear --title "Modo de Teste" \
-            --menu "Escolha o modo de acesso ao dispositivo:" 12 72 2 \
-            "hw" "Acesso direto (pode falhar se o formato não for aceito)" \
-            "plughw" "Acesso com conversão automática (mais seguro)" \
-            3>&1 1>&2 2>&3) || break
-
-        echo "$(date +%F\ %T) Testando ${metodo}:${dispositivo}" >> "$LOG_FILE"
-
-        # Escolha do tipo de teste
-        tipo=$(dialog --title "Tipo de Teste" --menu "Escolha o tipo de teste:" 12 60 2 \
-            "1" "Tom contínuo (440Hz por 3s)" \
-            "2" "Áudio de teste Front_Center.wav" \
-            3>&1 1>&2 2>&3) || break
-
-        case "$tipo" in
-            1) teste_som_hw "$metodo" "$dispositivo" ;;
-            2) teste_som_wav "$metodo" "$dispositivo" ;;
-        esac
-
-        # Confirmação final
-        dialog --yesno "Você ouviu som em ${metodo}:${dispositivo}?\n\nDeseja salvar como padrão?" 9 60
-        resposta=$?
-        if [ "$resposta" -eq 0 ]; then
-            salvar_como_padrao "$card" "$device"
+        if ! [[ "$card" =~ ^[0-9]+$ ]] || ! [[ "$device" =~ ^[0-9]+$ ]]; then
+            dialog --msgbox "Erro: Não foi possível extrair card/device" 8 50
+            continue
         fi
 
-        # Deseja testar outro?
+        # Seleção do método
+        metodo=$(dialog --menu "Modo de acesso:" 12 60 2 \
+            "hw" "Acesso direto" \
+            "plughw" "Acesso com conversão" \
+            3>&1 1>&2 2>&3) || continue
+
+        echo "$(date +%F\ %T) Testando ${metodo}:${card},${device}" >> "$LOG_FILE"
+
+        # Tipo de teste
+        tipo=$(dialog --menu "Tipo de teste:" 12 60 2 \
+            "1" "Tom contínuo (440Hz)" \
+            "2" "Áudio de teste (WAV)" \
+            3>&1 1>&2 2>&3) || continue
+
+        case "$tipo" in
+            1) teste_som_hw "$metodo" "${card},${device}" ;;
+            2) teste_som_wav "$metodo" "${card},${device}" ;;
+        esac
+
+        # Confirmação
+        dialog --yesno "Você ouviu som em ${metodo}:${card},${device}?\n\nDeseja salvar como padrão?" 9 60 && {
+            salvar_como_padrao "$card" "$device"
+        }
+
+        # Testar outro?
         dialog --yesno "Deseja testar outro dispositivo?" 7 50 || break
     done
 
@@ -141,4 +125,5 @@ loop_principal() {
     echo "✅ Log do teste salvo em: $LOG_FILE"
 }
 
+# Inicia o script
 loop_principal
