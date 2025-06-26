@@ -79,15 +79,17 @@ loop_principal() {
 
         # Cria lista de seleção
         menu_itens=()
-        for linha in "${dispositivos[@]}"; do
-            idx=$(echo "$linha" | cut -d' ' -f1-)
-            desc=$(echo "$linha" | cut -d' ' -f2-)
-            menu_itens+=("$idx" "$desc")
-        done
-# for i in "${!dispositivos[@]}"; do
-#     desc="${dispositivos[$i]}"
-#     menu_itens+=("$i" "$desc")
-# done
+        # for linha in "${dispositivos[@]}"; do
+        #     idx=$(echo "$linha" | cut -d' ' -f1-)
+        #     desc=$(echo "$linha" | cut -d' ' -f2-)
+        #     menu_itens+=("$idx" "$desc")
+        # done
+for linha in "${!dispositivos[@]}"; do
+    # Extrai o card NÚMERO a partir da string 'card:N '
+    card_id=$(echo "${dispositivos[$linha]}" | grep -oP '^card:\K[0-9]+')
+    desc=$(echo "${dispositivos[$linha]}" | cut -d' ' -f2-)
+    menu_itens+=("$card_id" "$desc")
+done
 
         # Seleção de dispositivo
         # Seleção de dispositivo
