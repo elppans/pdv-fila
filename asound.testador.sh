@@ -18,11 +18,11 @@ listar_dispositivos() {
     local idx=0
     mapfile -t dispositivos < <(aplay -l | awk -F'[:,]' '/^card/ {
         gsub(/^[ \t]+|[ \t]+$/, "", $0)
-        card_num=$2; name=$3; dev=$6; descr=$7  # Mudei 'card' para 'card_num' aqui
+        card_num=$2; name=$3; dev=$6; descr=$7
         gsub(/^[ \t]+|[ \t]+$/, "", name)
         gsub(/^[ \t]+|[ \t]+$/, "", descr)
-        printf("card %s hw:%s,%s - %s %s\n", idx++, card_num, dev, name, descr)  # Use card_num aqui
-    }')
+        printf("card_%s hw:%s,%s - %s %s\n", idx++, card_num, dev, name, descr)
+    }' | sed 's/card_/card:/')
 }
 
 # Função para escrever .asoundrc
