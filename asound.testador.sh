@@ -99,7 +99,8 @@ loop_principal() {
         # Verifica se a escolha é um número válido dentro do array
         if ! [[ "$escolha" =~ ^[0-9]+$ ]] || [ "$escolha" -ge "${#dispositivos[@]}" ]; then
             # dialog --msgbox "Escolha inválida ou cancelada: $escolha" 7 40
-            dialog --msgbox "Escolha inválida ou cancelada: $menu_itens" 7 40
+            # dialog --msgbox "Escolha inválida ou cancelada: $menu_itens" 7 40
+            dialog --msgbox "Escolha inválida ou cancelada: $idx" 7 40
             continue
         fi
 
