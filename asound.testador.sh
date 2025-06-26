@@ -16,13 +16,14 @@ done
 # Função para obter lista de dispositivos com nomes amigáveis
 listar_dispositivos() {
     local idx=0
-    mapfile -t dispositivos < <(aplay -l | awk -F'[:,]' '/^card/ {
-        gsub(/^[ \t]+|[ \t]+$/, "", $0)
-        card_num=$2; name=$3; dev=$6; descr=$7
-        gsub(/^[ \t]+|[ \t]+$/, "", name)
-        gsub(/^[ \t]+|[ \t]+$/, "", descr)
-        printf("card:%s hw:%s,%s - %s %s\n", idx++, card_num, dev, name, descr)
-    }')
+mapfile -t dispositivos < <(aplay -l | awk -F'[:,]' '/^card/ {
+    gsub(/^[ \t]+|[ \t]+$/, "", $0)
+    card_num=$2; name=$3; dev=$6; descr=$7
+    gsub(/^[ \t]+|[ \t]+$/, "", name)
+    gsub(/^[ \t]+|[ \t]+$/, "", descr)
+    printf("card:%s hw:%s,%s - %s %s\n", card_num, card_num, dev, name, descr)
+}')
+
 }
 
 # Função para escrever .asoundrc
