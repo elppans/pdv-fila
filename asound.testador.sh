@@ -98,13 +98,7 @@ loop_principal() {
         escolha=$(dialog --clear --title "Testador de Áudio ALSA" \
             --menu "Selecione um dispositivo para testar:" 20 72 10 \
             "${menu_itens[@]}" \
-            3>&1 1>&2 2>&3)
-
-     # Se o usuário cancelou, volta pro início ao invés de quebrar
-if [ $? -ne 0 ]; then
-    dialog --msgbox "Cancelado pelo usuário. Retornando ao menu principal." 6 50
-    continue
-fi
+            3>&1 1>&2 2>&3) || break
 
         linha_escolhida="${dispositivos[$escolha]}"
         dispositivo="$(echo "$linha_escolhida" | awk '/hw:/ {
@@ -167,6 +161,7 @@ fi
 
     clear
     echo "✅ Log do teste salvo em: $LOG_FILE"
+    loop_principal
 }
 
 loop_principal
