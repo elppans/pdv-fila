@@ -151,7 +151,9 @@ resposta=$?
 if [ "$resposta" -eq 0 ]; then
     salvar_como_padrao "$card" "$device"
 else
-    dialog --msgbox "Dispositivo **não** foi salvo como padrão. Voltando ao menu..." 7 50 || continue
+    dialog --msgbox "Dispositivo **não** foi salvo como padrão. Voltando ao menu..." 7 50
+    # Deseja testar outro?
+    dialog --yesno "Deseja testar outro dispositivo?" 7 50 || break
 fi
 
 
