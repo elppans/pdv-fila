@@ -1,4 +1,5 @@
 #!/bin/bash
+# Dependência: alsa-utils dialog
 
 set -euo pipefail
 
