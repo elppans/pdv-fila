@@ -124,11 +124,21 @@ loop_principal() {
 
         echo "$(date +%F\ %T) Testando ${metodo}:${dispositivo}" >> "$LOG_FILE"
 
-        # Escolha do tipo de teste
-        tipo=$(dialog --title "Tipo de Teste" --menu "Escolha o tipo de teste:" 12 60 2 \
-            "1" "Tom contínuo (440Hz por 3s)" \
-            "2" "Áudio de teste Front_Center.wav" \
-            3>&1 1>&2 2>&3) || break
+# Escolha do tipo de teste
+while true; do
+    tipo=$(dialog --title "Tipo de Teste" --menu "Escolha o tipo de teste:" 12 60 2 \
+        "1" "Tom contínuo (440Hz por 3s)" \
+        "2" "Áudio de teste Front_Center.wav" \
+        3>&1 1>&2 2>&3) || break
+
+    if [ "$tipo" = "2" ] && [ "$metodo" = "hw" ]; then
+        dialog --msgbox "❌ O modo 'hw' não suporta reprodução de arquivos WAV com conversão automática.\n\nPor favor, use o modo 'plughw' para esse tipo de teste." 10 60
+        continue  # Volta para escolher o tipo de teste
+    else
+        break  # Tipo de teste válido, segue o fluxo
+    fi
+done
+
 
         case "$tipo" in
             1) teste_som_hw "$metodo" "$dispositivo" ;;
