@@ -29,7 +29,6 @@ listar_dispositivos() {
 salvar_como_padrao() {
     local card="$1"
     local device="$2"
-    # echo "DEBUG: card=$card, device=$device" >> "$LOG_FILE" # Linha de debug temporária
     local arquivo="$HOME/.asoundrc"
     cat > "$arquivo" <<EOF
 pcm.!default {
@@ -94,8 +93,8 @@ loop_principal() {
 
         linha_escolhida="${dispositivos[$escolha]}"
         # Extrai card e device diretamente da string formatada
-        card=$(echo "$linha_escolhida" | awk -F'[, ]+' '{print $2}' | tr -d ':')  # Pega o número após "card:"
-        device=$(echo "$linha_escolhida" | awk -F'[, ]+' '{print $4}')  # Pega o número após "hw:"
+        card=$(echo "$linha_escolhida" | awk -F'[:, ]+' '{print $2}')  # Pega o número após "card"
+        device=$(echo "$linha_escolhida" | awk -F'[:, ]+' '{print $5}')  # Pega o número após "hw"
 
         # Adicione também um debug temporário para verificar:
         echo "DEBUG: linha_escolhida=$linha_escolhida" >> "$LOG_FILE"
@@ -108,7 +107,7 @@ loop_principal() {
             "plughw" "Acesso com conversão automática (mais seguro)" \
             3>&1 1>&2 2>&3) || break
 
-        echo "$(date +%F\ %T) Testando ${metodo}:${dispositivo}" >> "$LOG_FILE"
+        echo "$(date +%F\ %T) Testando ${metodo}:${card},${device}" >> "$LOG_FILE"
 
         # Escolha do tipo de teste
         tipo=$(dialog --title "Tipo de Teste" --menu "Escolha o tipo de teste:" 12 60 2 \
@@ -117,12 +116,12 @@ loop_principal() {
             3>&1 1>&2 2>&3) || break
 
         case "$tipo" in
-            1) teste_som_hw "$metodo" "$dispositivo" ;;
-            2) teste_som_wav "$metodo" "$dispositivo" ;;
+            1) teste_som_hw "$metodo" "$card,$device" ;;
+            2) teste_som_wav "$metodo" "$card,$device" ;;
         esac
 
         # Confirmação final
-        dialog --yesno "Você ouviu som em ${metodo}:${dispositivo}?\n\nDeseja salvar como padrão?" 9 60
+        dialog --yesno "Você ouviu som em ${metodo}:${card},${device}?\n\nDeseja salvar como padrão?" 9 60
         resposta=$?
         if [ "$resposta" -eq 0 ]; then
             salvar_como_padrao "$card" "$device"
