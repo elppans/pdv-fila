@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Dependência: alsa-utils dialog
+
 # Verifica se o utilitário "dialog" está disponível
 if ! command -v dialog &>/dev/null; then
     echo "❌ O utilitário 'dialog' não está instalado. Instale com: sudo apt install dialog"
