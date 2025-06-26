@@ -18,10 +18,10 @@ listar_dispositivos() {
     local idx=0
     mapfile -t dispositivos < <(aplay -l | awk -F'[:,]' '/^card/ {
         gsub(/^[ \t]+|[ \t]+$/, "", $0)
-        card_num=$2; name=$3; dev=$6; descr=$7
+        card=$2; name=$3; dev=$6; descr=$7
         gsub(/^[ \t]+|[ \t]+$/, "", name)
         gsub(/^[ \t]+|[ \t]+$/, "", descr)
-        printf("%s hw:%s,%s - %s %s\n", idx++, card_num, dev, name, descr)
+        printf("%s hw:%s,%s - %s: %s\n", idx++, card, dev, name, descr)
     }')
 }
 
@@ -54,6 +54,9 @@ teste_som_hw() {
     pid=$!
     sleep 4
     kill $pid 2>/dev/null
+        echo "DEBUG: metodo=$metodo" >> "$LOG_FILE"
+        echo "DEBUG: dispositivo=$dispositivo" >> "$LOG_FILE"
+
 }
 
 # Função de teste com arquivo WAV
@@ -65,6 +68,8 @@ teste_som_wav() {
         return
     fi
     aplay -D "${metodo}:${dispositivo}" /usr/share/sounds/alsa/Front_Center.wav
+        echo "DEBUG: metodo=$metodo" >> "$LOG_FILE"
+        echo "DEBUG: dispositivo=$dispositivo" >> "$LOG_FILE"
 }
 
 # Função principal de loop
@@ -83,6 +88,10 @@ loop_principal() {
             idx=$(echo "$linha" | awk '{print $1}')
             desc=$(echo "$linha" | cut -d' ' -f2-)
             menu_itens+=("$idx" "$desc")
+	    echo "DEBUG: linha=$linha" >> "$LOG_FILE"
+	    echo "DEBUG: idx=$idx" >> "$LOG_FILE"
+	    echo "DEBUG: desc=$desc" >> "$LOG_FILE"
+	    echo "DEBUG: menu_itens=$menu_itens" >> "$LOG_FILE"
         done
 
         # Seleção de dispositivo
@@ -92,11 +101,17 @@ loop_principal() {
             3>&1 1>&2 2>&3) || break
 
         linha_escolhida="${dispositivos[$escolha]}"
-        # Extrai card e device diretamente da string formatada
-        card=$(echo "$linha_escolhida" | awk -F'[:, ]+' '{print $2}')  # Pega o número após "card"
-        device=$(echo "$linha_escolhida" | awk -F'[:, ]+' '{print $5}')  # Pega o número após "hw"
+        dispositivo="$(echo "$linha_escolhida" | awk '/hw:/ {
+    gsub(/[^0-9]/, "", $1)
+    gsub(/[^0-9]/, "", $NF)
+    print $1","$NF
+}')"
+        card=$(echo "$dispositivo" | cut -d',' -f1 | awk -F'[:, ]+' '{print $1}')
+        device=$(echo "$linha_escolhida" | cut -d',' -f2 | awk -F'[:, ]+' '{print $4}')
 
-        # Adicione também um debug temporário para verificar:
+        echo "DEBUG: dispositivos=$dispositivos" >> "$LOG_FILE"
+        echo "DEBUG: dispositivo=$dispositivo" >> "$LOG_FILE"
+        echo "DEBUG: escolha=$escolha" >> "$LOG_FILE"
         echo "DEBUG: linha_escolhida=$linha_escolhida" >> "$LOG_FILE"
         echo "DEBUG: card=$card, device=$device" >> "$LOG_FILE"
 
@@ -107,7 +122,7 @@ loop_principal() {
             "plughw" "Acesso com conversão automática (mais seguro)" \
             3>&1 1>&2 2>&3) || break
 
-        echo "$(date +%F\ %T) Testando ${metodo}:${card},${device}" >> "$LOG_FILE"
+        echo "$(date +%F\ %T) Testando ${metodo}:${dispositivo}" >> "$LOG_FILE"
 
         # Escolha do tipo de teste
         tipo=$(dialog --title "Tipo de Teste" --menu "Escolha o tipo de teste:" 12 60 2 \
@@ -116,12 +131,12 @@ loop_principal() {
             3>&1 1>&2 2>&3) || break
 
         case "$tipo" in
-            1) teste_som_hw "$metodo" "$card,$device" ;;
-            2) teste_som_wav "$metodo" "$card,$device" ;;
+            1) teste_som_hw "$metodo" "$dispositivo" ;;
+            2) teste_som_wav "$metodo" "$dispositivo" ;;
         esac
 
         # Confirmação final
-        dialog --yesno "Você ouviu som em ${metodo}:${card},${device}?\n\nDeseja salvar como padrão?" 9 60
+        dialog --yesno "Você ouviu som em ${metodo}:${dispositivo}?\n\nDeseja salvar como padrão?" 9 60
         resposta=$?
         if [ "$resposta" -eq 0 ]; then
             salvar_como_padrao "$card" "$device"
