@@ -21,7 +21,7 @@ listar_dispositivos() {
         card_num=$2; name=$3; dev=$6; descr=$7
         gsub(/^[ \t]+|[ \t]+$/, "", name)
         gsub(/^[ \t]+|[ \t]+$/, "", descr)
-        printf("card:%s hw:%s,%s - %s %s\n", idx++, card_num, dev, name, descr)
+        printf("card:%s hw:%s,%s - %s %s\n", idx++, card_num, name, dev, descr)
     }')
 }
 
