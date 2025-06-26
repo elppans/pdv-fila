@@ -80,7 +80,7 @@ loop_principal() {
         # Cria lista de seleção
         menu_itens=()
         for linha in "${dispositivos[@]}"; do
-            idx=$(echo "$linha" | awk '{print $1}')
+            idx=$(echo "$linha" | cut -d':' -f2-)
             desc=$(echo "$linha" | cut -d' ' -f2-)
             menu_itens+=("$idx" "$desc")
         done
@@ -100,8 +100,9 @@ loop_principal() {
         if ! [[ "$escolha" =~ ^[0-9]+$ ]] || [ "$escolha" -ge "${#dispositivos[@]}" ]; then
             # dialog --msgbox "Escolha inválida ou cancelada: $escolha" 7 40
             # dialog --msgbox "Escolha inválida ou cancelada: $menu_itens" 7 40
-            dialog --msgbox "Escolha inválida ou cancelada: $idx" 7 40
+            # dialog --msgbox "Escolha inválida ou cancelada: $idx" 7 40
             # dialog --msgbox "Escolha inválida ou cancelada: $desc" 7 40
+            dialog --msgbox "Escolha inválida ou cancelada:" 7 40
             continue
         fi
 
