@@ -133,21 +133,3 @@ aplay -D hw:0,1 /usr/share/sounds/alsa/Front_Center.wav
 aplay -D hw:0,3 /usr/share/sounds/alsa/Front_Center.wav
 aplay -D hw:0,7 /usr/share/sounds/alsa/Front_Center.wav
 
-
-Script para testar ứo audio:
-
-#!/bin/bash
-
-echo "🔊 Testando saídas de áudio do card 0:"
-
-for device in 0 1 3 7; do
-    echo
-    echo "🔁 Testando hw:0,$device ..."
-    speaker-test -t sine -f 440 -D hw:0,$device -c 2 -l 1 >/dev/null 2>&1 &
-    pid=$!
-    sleep 3
-    kill $pid &>>/dev/null
-done
-
-echo
-echo "✅ Fim do teste. Se você ouviu som em alguma etapa, essa é a saída funcional!"
