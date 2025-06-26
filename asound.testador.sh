@@ -84,6 +84,10 @@ loop_principal() {
             desc=$(echo "$linha" | cut -d' ' -f2-)
             menu_itens+=("$idx" "$desc")
         done
+# for i in "${!dispositivos[@]}"; do
+#     desc="${dispositivos[$i]}"
+#     menu_itens+=("$i" "$desc")
+# done
 
         # Seleção de dispositivo
         # Seleção de dispositivo
@@ -94,7 +98,8 @@ loop_principal() {
 
         # Verifica se a escolha é um número válido dentro do array
         if ! [[ "$escolha" =~ ^[0-9]+$ ]] || [ "$escolha" -ge "${#dispositivos[@]}" ]; then
-            dialog --msgbox "Escolha inválida ou cancelada: $escolha" 7 40
+            # dialog --msgbox "Escolha inválida ou cancelada: $escolha" 7 40
+            dialog --msgbox "Escolha inválida ou cancelada: $menu_itens" 7 40
             continue
         fi
 
