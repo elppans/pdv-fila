@@ -21,8 +21,8 @@ listar_dispositivos() {
         card_num=$2; name=$3; dev=$6; descr=$7
         gsub(/^[ \t]+|[ \t]+$/, "", name)
         gsub(/^[ \t]+|[ \t]+$/, "", descr)
-        printf("card_%s hw:%s,%s - %s %s\n", idx++, card_num, dev, name, descr)
-    }' | sed 's/card_/card:/')
+        printf("card:%s hw:%s,%s - %s %s\n", idx++, card_num, dev, name, descr)
+    }')
 }
 
 # Função para escrever .asoundrc
