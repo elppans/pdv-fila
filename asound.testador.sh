@@ -146,11 +146,14 @@ done
         esac
 
         # Confirmação final
-        dialog --yesno "Você ouviu som em ${metodo}:${dispositivo}?\n\nDeseja salvar como padrão?" 9 60
-        resposta=$?
-        if [ "$resposta" -eq 0 ]; then
-            salvar_como_padrao "$card" "$device"
-        fi
+dialog --yesno "Você ouviu som em ${metodo}:${dispositivo}?\n\nDeseja salvar como padrão?" 9 60
+resposta=$?
+if [ "$resposta" -eq 0 ]; then
+    salvar_como_padrao "$card" "$device"
+else
+    dialog --msgbox "Dispositivo **não** foi salvo como padrão. Voltando ao menu..." 7 50
+fi
+
 
         # Deseja testar outro?
         dialog --yesno "Deseja testar outro dispositivo?" 7 50 || break
