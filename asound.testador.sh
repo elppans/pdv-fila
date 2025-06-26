@@ -86,10 +86,18 @@ loop_principal() {
         done
 
         # Seleção de dispositivo
+        # Seleção de dispositivo
         escolha=$(dialog --clear --title "Testador de Áudio ALSA" \
             --menu "Selecione um dispositivo para testar:" 20 72 10 \
             "${menu_itens[@]}" \
             3>&1 1>&2 2>&3) || break
+
+        # Verifica se a escolha é um número válido dentro do array
+        if ! [[ "$escolha" =~ ^[0-9]+$ ]] || [ "$escolha" -ge "${#dispositivos[@]}" ]; then
+            dialog --msgbox "Escolha inválida ou cancelada." 7 40
+            continue
+        fi
+
 
         linha_escolhida="${dispositivos[$escolha]}"
         # Extrai card e device diretamente da string formatada
