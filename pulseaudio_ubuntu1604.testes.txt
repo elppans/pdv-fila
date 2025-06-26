@@ -1,0 +1,206 @@
+Gerenciamento de som no Ubuntu com Alsa, Pulseaudio, pavucontrol, etc.
+
+O `pavucontrol` funciona com o PipeWire também — desde que o PipeWire esteja em modo de compatibilidade com o PulseAudio, o que é o caso na maioria das distribuições Linux mais recentes, incluindo o Ubuntu. Basicamente, o PipeWire “imita” o PulseAudio por meio de um serviço chamado `pipewire-pulse`, permitindo que ferramentas como o `pavucontrol` continuem funcionando normalmente.
+
+Ou seja, mesmo que você esteja usando PipeWire como servidor de áudio, o `pavucontrol` ainda vai mostrar os dispositivos e fluxos de áudio como se fosse PulseAudio. 
+
+___
+
+O `pavucontrol` em si é uma interface gráfica, então ele não oferece controle direto via linha de comando. Mas tem uma alternativa poderosa pra isso: **`pactl`**, que funciona muito bem tanto com PulseAudio quanto com PipeWire (usando o `pipewire-pulse`).
+
+Aqui vai um exemplo básico para aumentar o volume:
+
+```bash
+pactl set-sink-volume @DEFAULT_SINK@ +10%
+```
+
+Esse comando aumenta em 10% o volume da saída de áudio padrão. Se quiser diminuir, é só trocar o `+` por `-`.
+
+Quer saber o nome dos dispositivos disponíveis? Use:
+
+```bash
+pactl list short sinks
+```
+
+E pra definir o volume de um sink específico:
+
+```bash
+pactl set-sink-volume nome_ou_id_do_sink 75%
+```
+
+___
+
+
+Pra descobrir o volume atual da sua saída de áudio com `pactl`, você pode usar este comando:
+
+```bash
+pactl list sinks | grep -A 15 'Name: ' | grep 'Volume'
+```
+
+Esse comando lista todos os sinks (saídas de áudio) e exibe as linhas que mostram os volumes atuais. Se você quiser ver apenas o volume da saída padrão, pode fazer assim:
+
+```bash
+pactl get-sink-volume @DEFAULT_SINK@
+```
+
+Esse comando é direto e mostra algo como:
+
+```
+Volume: front-left: 65536 / 100% / 0.00 dB, front-right: 65536 / 100% / 0.00 dB
+```
+
+___
+
+
+**O `alsamixer` é um mixer de volume para o ALSA**, que é o sistema de som mais básico no Linux. **O PulseAudio (e também o PipeWire) rodam por cima do ALSA**, ou seja, eles usam o ALSA para realmente enviar o som pro hardware. Então, o que o `alsamixer` controla são os volumes e os canais no nível do ALSA — ou seja, bem próximo do "metal", por assim dizer. 😄
+
+Mesmo com PulseAudio rodando, você pode abrir o `alsamixer` e ajustar volumes. Por exemplo:
+```bash
+alsamixer
+```
+E ali você pode ajustar a saída de áudio do seu dispositivo (normalmente “Master”, “PCM” etc). Isso pode impactar o volume final mesmo se você também estiver controlando o áudio via `pavucontrol` ou `pactl`.
+
+Só tem que tomar cuidado: às vezes o volume no ALSA tá mutado, mesmo que no PulseAudio pareça tudo normal. Dá pra ver isso no `alsamixer` — se a barrinha estiver com “MM” embaixo, tá mutado. Aperta `M` pra reativar e usa as setinhas pra ajustar o volume.
+
+___
+
+Checar se o serviço do PulseAudio está ativo no seu sistema:
+
+1. **Verificar se ele está rodando**:
+
+```bash
+ps aux | grep pulseaudio
+```
+
+Se você vir uma linha com o processo `pulseaudio`, isso indica que ele está em execução — normalmente como processo do seu usuário.
+
+2. **Usar `systemctl` (se o PulseAudio estiver rodando como serviço de sistema)**:
+
+```bash
+systemctl --user status pulseaudio
+```
+
+Ou, se estiver usando PipeWire no lugar do PulseAudio:
+
+```bash
+systemctl --user status pipewire-pulse
+```
+
+3. **Verificar a saída do comando `pactl`** (se estiver ativo, o `pactl` vai funcionar):
+
+```bash
+pactl info
+```
+
+Se tudo estiver certo, esse comando vai te mostrar algo como:
+
+```
+Server Name: pulseaudio
+```
+
+Ou, se estiver no PipeWire, dirá `pulse-server (PipeWire ...)`.
+
+___
+
+Se o `pactl info` não trouxe informações sobre o PulseAudio e o comando `systemctl --user status pulseaudio` mostrou que o serviço está desativado (ou nem existe), então o mais provável é que você esteja usando **PipeWire** como substituto do PulseAudio — o que é comum nas versões mais recentes do Ubuntu.
+
+Você pode confirmar isso com:
+
+```bash
+pactl info
+```
+
+Se aparecer algo como:
+
+```
+Server Name: PulseAudio (on PipeWire ...)
+```
+
+Então está tudo funcionando através do *pipewire-pulse* — ou seja, o **servidor de som compatível com PulseAudio está ativo**, só que implementado pelo PipeWire.
+
+Se por outro lado o `pactl info` retornar um erro do tipo “Connection failure”, aí sim o servidor de som pode não estar rodando. Nessa situação, tente:
+
+```bash
+systemctl --user restart pipewire pipewire-pulse
+```
+
+E depois cheque de novo com `pactl info`.
+
+Se quiser um diagnóstico mais completo, me manda a saída dos seguintes comandos e eu te ajudo a interpretar tudo:
+
+```bash
+systemctl --user status pipewire pipewire-pulse
+pactl info
+```
+
+___
+
+Na versão 16.04 do Ubuntu, o servidor de áudio padrão ainda é o **PulseAudio**, e o **PipeWire** nem fazia parte do sistema naquela época. Ou seja, se o som não está funcionando e o PulseAudio aparentemente não está rodando, a gente precisa trazê-lo de volta à ativa.
+
+Aqui vão alguns passos diretos pra tentar restaurar o PulseAudio:
+
+1. **Reinstale o PulseAudio**:
+   ```bash
+   sudo apt-get install --reinstall pulseaudio
+   ```
+
+2. **Reinicie o PulseAudio manualmente**:
+   ```bash
+   pulseaudio --kill
+   pulseaudio --start
+   ```
+
+3. **Verifique se ele voltou**:
+   ```bash
+   pactl info
+   ```
+
+   Se funcionar, vai mostrar algo como `Server Name: pulseaudio`.
+
+4. **Se nada funcionar, tente apagar a configuração local** (isso pode corrigir problemas de configuração corrompida):
+   ```bash
+   rm -r ~/.config/pulse
+   pulseaudio --start
+   ```
+
+___
+
+SOM NO FIREFOX
+
+O Firefox não funciona o som, mas o Chromium funciona
+
+# firefox PulseAudio
+
+Se o som funciona no Chromium, mas não no Firefox, então o problema provavelmente não está no sistema de áudio como um todo, mas **em algo específico na configuração do Firefox**.
+
+Aqui vão algumas sugestões específicas pro Firefox no Ubuntu 16.04:
+
+1. **Verifique se o som não está bloqueado no Firefox**  
+   Acesse um site como YouTube, clique no cadeado ao lado da URL e veja se a permissão de som está liberada.
+
+2. **Teste desativar o ALSA no Firefox**  
+   O Firefox às vezes tenta usar uma saída de áudio diferente. Tente forçar ele a usar PulseAudio criando ou editando o arquivo:
+   ```bash
+   echo "media.cubeb.backend = pulse" >> ~/.mozilla/firefox/*.default*/user.js
+   ```
+
+3. **Rodar o Firefox pelo terminal e observar mensagens**  
+   Execute assim:
+   ```bash
+   firefox
+   ```
+   A saída pode dar alguma dica de erro relacionado ao áudio.
+
+4. **Experimente com um novo perfil**  
+   Às vezes, extensões ou configurações corrompidas atrapalham o som. Tente iniciar com um perfil limpo:
+   ```bash
+   firefox --no-remote -P
+   ```
+
+5. **Verifique se falta algum pacote GStreamer**  
+   O Firefox no Ubuntu 16.04 depende do GStreamer para lidar com áudio e vídeo. Instale:
+   ```bash
+   sudo apt-get install gstreamer1.0-pulseaudio
+   ```
+
+
