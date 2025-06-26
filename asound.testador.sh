@@ -44,10 +44,6 @@ EOF
     dialog --msgbox "Dispositivo salvo como padrão em:\n$arquivo" 8 50
 }
 
-mensagem_padrao_nao_salvo() {
-    dialog --msgbox "Dispositivo **não** foi salvo como padrão. Voltando ao menu..." 7 50
-}
-
 # Função de teste com som de 440Hz
 teste_som_hw() {
     local metodo="$1"
@@ -154,8 +150,6 @@ dialog --yesno "Você ouviu som em ${metodo}:${dispositivo}?\n\nDeseja salvar co
 resposta=$?
 if [ "$resposta" -eq 0 ]; then
     salvar_como_padrao "$card" "$device"
-else
-    mensagem_padrao_nao_salvo
 fi
 
 
