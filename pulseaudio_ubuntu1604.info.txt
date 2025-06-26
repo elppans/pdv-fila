@@ -1,0 +1,72 @@
+Para caso em que se deve usar onavegador Firefox com som.
+O Firefox não tem suporte a Alsa, mas tem suporte ao PulseAudio
+
+# Instalando Firefox:
+
+sudo apt -y install firefox
+
+# Configurando som no Ubuntu 16.04, ALSA e PulseAudio
+
+# Pacotes essenciais de som (ALSA + PulseAudio):
+
+# ALSA - drivers e ferramentas básicas
+
+sudo apt-get install alsa-utils alsa-base libasound2 libasound2-plugins linux-sound-base
+
+# PulseAudio - servidor de som e ferramentas
+
+sudo apt-get install pulseaudio pulseaudio-utils libpulse0 libcanberra-pulse
+
+# Interface de controle de volume (útil para ajustes)
+
+sudo apt-get install pavucontrol
+
+# Plugins GStreamer (integração com players, navegadores etc):
+
+# GStreamer para PulseAudio
+
+sudo apt-get install gstreamer1.0-pulseaudio
+
+# GStreamer para ALSA
+
+sudo apt-get install gstreamer1.0-alsa gstreamer0.10-alsa
+
+# Reinicialização dos serviços de som:
+
+# Reiniciar drivers ALSA
+
+sudo alsa force-reload
+
+# Resetar configurações antigas do PulseAudio
+
+pulseaudio --kill
+rm -r ~/.config/pulse/
+pulseaudio --start
+
+# Verificar se está rodando corretamente
+
+pactl info
+
+# Pulseaudio no arquivo ~/.bashrc:
+
+Adicionar no final do arquivo
+
+# Iniciando Pulseaudio durante a inicialização
+# Ativar as 2 primeiras linhas se estiver com problemas ao iniciar o serviço
+# pulseaudio --kill
+# rm -r ~/.config/pulse/ ~/.pulse/
+pulseaudio --start
+
+# Se preferir, adicionar o Pulseaudio no autostart:
+
+# Criar um arquivo .desktop e dar permissão de execução:
+
+~/.config/autostart/pulseaudio.desktop
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=pulseaudio
+Icon=
+Exec=pulseaudio --start
+StartupNotify=false
+Terminal=false
