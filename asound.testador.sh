@@ -161,7 +161,6 @@ fi
 
     clear
     echo "✅ Log do teste salvo em: $LOG_FILE"
-    loop_principal
 }
 
 loop_principal
